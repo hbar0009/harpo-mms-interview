@@ -44,7 +44,27 @@ class Problem3:
 
 
     def search(self, word):
-        pass
+        return self.__search_aux(self.words, word + self.terminating_char)
+
+    
+    def __search_aux(self, sub_trie, word, char_index=0):
+        
+        # First determine what character we are currently inserting, and its lexographical index
+        current_char = word[char_index]
+        current_index = self.char_to_index(current_char)
+
+        # If we have reached the end of the word (indicated by a \0 character)
+        if current_char == self.terminating_char:
+            # Return True if the word is in the sub-trie (indicated by a \0), and False otherwise
+            return sub_trie[0] is not None
+        
+        # We can check if this character has been inserted into this sub-trie
+        if sub_trie[current_index] is None:
+            return False
+        
+        # If it has been inserted, keep searching that sub-trie for the next character
+        return self.__search_aux(sub_trie[current_index], word, char_index + 1)
+
 
 
     def delete(self, word):
@@ -70,3 +90,8 @@ if __name__ == "__main__":
 
     for word in word_list:
         problem.insert(word)
+
+    print(problem.search("hello"))
+    print(problem.search("words"))
+    print(problem.search("ope"))
+    print(problem.search("opportunities"))
