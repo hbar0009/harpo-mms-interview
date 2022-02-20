@@ -11,25 +11,58 @@ import timeit
 
 
 class Problem3:
-    # assuming all words entered are non-empty strings with no spaces, using only lowercase characters a-z
+    """
+    A class to represent the data structure specified in technical question 3 for MMS's interview process.
 
-    # effectively, this is a prefix trie
+    The data structure requires the insertion, searching, and deletion of a list of words (assumed to be
+    all made up of sets of lowercase letters from a-z). Insertion, deletion, and searching are all
+    required to be in O(n) worst case time and space complexities, where it is assumed that n is the number
+    of characters in the word.
 
-    # a conscious effort was made to prioritize code readability, rather than to minimize repeated code.
+    The underlying data structure is effectively an implementation of a prefix trie using arrays.
+
+    A conscious effort was made to prioritize code readability, rather than to minimize repeated code.
+    """
 
     def __init__(self):
+        """
+        Generates the data structure.
+
+        Complexity (Worst case):
+            O(1)
+        """
         self.alphabet_length = 27  # the number of characters in the set of allowed characters, plus 1 for the terminating character
         self.terminating_char = "\0"  # the terminating character used to indicate that a word has finished
         self.words = [None for _ in range(self.alphabet_length)]
 
 
     def insert(self, word):
+        """
+        Inserts a new word into the data structure.
+
+        Args:
+            word (string): A non-empty string containing only lowercase characters from a-z
+
+        Complexity (Worst case):
+            O(n) where n is the number of characters in word
+        """
         self.__insert_aux(self.words, word + self.terminating_char)
         
 
     def __insert_aux(self, sub_trie, word, char_index=0):
+        """
+        Auxiliary recursive function for inserting a new word into the data structure
 
-        # First determine what character we are currently inserting, and its lexographical index
+        Args:
+            sub_trie (list): A list representing a sub-trie from the original data structure
+            word (string): A non-empty string containing only lowercase characters from a-z
+            char_index (int, optional): The index of the character within word that is currently being inserted. Defaults to 0.
+        
+        Complexity (Worst case):
+            Each function call is O(1), but recursively can be up to O(n) calls where n is the number of characters in word.
+        """
+
+        # First determine what character we are currently inserting, and its index within the sub-trie
         current_char = word[char_index]
         current_index = self.char_to_index(current_char)
 
@@ -47,11 +80,37 @@ class Problem3:
 
 
     def search(self, word):
+        """
+        Searches through the data structure for a given word.
+
+        Args:
+            word (string): A non-empty string containing only lowercase letters from a-z
+
+        Returns:
+            bool: True if the word is present in the data structure, False otherwise
+
+        Complexity (Worst case):
+            O(n) where n is the number of characters in word
+        """
         return self.__search_aux(self.words, word + self.terminating_char)
 
     
     def __search_aux(self, sub_trie, word, char_index=0):
+        """
+        Auxiliary recursive function for searching the data structure for a given word.
+
+        Args:
+            sub_trie (list): A list representing a sub-trie from the original data structure
+            word (string): A non-empty string containing only lowercase characters from a-z
+            char_index (int, optional): The index of the character within word that is currently being inserted. Defaults to 0.
         
+        Returns:
+            bool:True if the word is present in the data structure, False otherwise
+
+        Complexity (Worst case):
+            Each function call is O(1), but recursively can be up to O(n) calls where n is the number of characters in word.
+        """
+
         # First determine what character we are currently searching for, and its lexographical index
         current_char = word[char_index]
         current_index = self.char_to_index(current_char)
@@ -71,12 +130,34 @@ class Problem3:
 
 
     def delete(self, word):
-        # nothing happens if the word is not in the structure
+        """
+        Deletes a given word from the data structure. If the word is not in the structure, there is no effect.
+
+        Args:
+            word (string): A non-empty string containing only lowercase letters from a-z
+
+        Complexity (Worst case):
+            O(n) where n is the number of characters in word
+        """
         self.__delete_aux(self.words, word + self.terminating_char)
 
 
     def __delete_aux(self, sub_trie, word, char_index=0):
+        """
+        Auxiliary recursive function for deleting a given word from the data structure.
+
+        Args:
+            sub_trie (list): A list representing a sub-trie from the original data structure
+            word (string): A non-empty string containing only lowercase characters from a-z
+            char_index (int, optional): The index of the character within word that is currently being inserted. Defaults to 0.
         
+        Returns:
+            bool:True if the current sub-trie level is empty and can be deleted safely.
+
+        Complexity (Worst case):
+            Each function call is O(1), but recursively can be up to O(n) calls where n is the number of characters in word.
+        """
+
         # First determine what character we are currently searching for, and its lexographical index
         current_char = word[char_index]
         current_index = self.char_to_index(current_char)
@@ -106,7 +187,18 @@ class Problem3:
 
 
     def char_to_index(self, char):
-        
+        """
+        Maps a character to its index within the sub-trie list.
+        In other words, maps a character from a-z to its lexicographical index.
+        i.e. a to 1, b to 2, c to 3, etc.
+        Also maps '\0' to 0.
+
+        Args:
+            char (char): A lowercase character from a-z, or '\0'
+
+        Returns:
+            int: The character's lexicographical mapping (a to 1, b to 2, c to 3, etc.) 0 if the character is '\0'
+        """
         if char == self.terminating_char:
             return 0
         
@@ -116,8 +208,16 @@ class Problem3:
 
 
 class TestProblem3(unittest.TestCase):
+    """
+    A set of unit tests for the Problem3 class.
+
+    The insertion, search, and deletion methods are tested, as well as their time complexities.
+    """
 
     def setUp(self):
+        """
+        Creates a Problem3 object before each test, as well as two lists of words.
+        """
         self.structure = Problem3()
         self.word_list = ["hello", "word", "hey", "wonder", "wordle", "open", "opportunity", "opportunities",
                             "yes", "maybe", "close", "closer", "closest", "wow", "sever", "serve", "several",
@@ -126,6 +226,9 @@ class TestProblem3(unittest.TestCase):
 
 
     def test_insert(self):
+        """
+        Tests the insert method of the Problem3 class.
+        """
 
         # general smoke test
         for word in self.word_list:
@@ -133,7 +236,10 @@ class TestProblem3(unittest.TestCase):
 
 
     def test_search(self):
-        
+        """
+        Tests the search method of the Problem3 class.
+        """
+
         # insert words into structure
         for word in self.word_list:
             self.structure.insert(word)
@@ -148,7 +254,10 @@ class TestProblem3(unittest.TestCase):
 
 
     def test_delete(self):
-        
+        """
+        Tests the delete method of the Problem3 class.
+        """
+
         # insert words into structure
         for word in self.word_list:
             self.structure.insert(word)
@@ -175,9 +284,15 @@ class TestProblem3(unittest.TestCase):
 
     
     def test_time_complexity(self):
-        
+        """
+        Tests the time complexities of the Problem3 class insert, search, and delete methods.
+        Prints the time taken for an insertion/search/deletion of a specific length word to the console.
+        """
+
         # creating a set of words 100, 200, 300 ... 900 characters long
         increasing_word_list = ['a' * 100*n for n in range(1, 10)]
+        
+        print()
         
         # inserting each word and printing the time taken per word
         for i in range(len(increasing_word_list)):
