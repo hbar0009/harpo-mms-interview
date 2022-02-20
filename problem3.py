@@ -7,6 +7,7 @@ Last Modified: 20/02/2022
 """
 
 import unittest
+import timeit
 
 
 class Problem3:
@@ -104,9 +105,6 @@ class Problem3:
             return False
 
 
-
-
-
     def char_to_index(self, char):
         
         if char == self.terminating_char:
@@ -117,30 +115,107 @@ class Problem3:
         return index
 
 
+class TestProblem3(unittest.TestCase):
+
+    def setUp(self):
+        self.structure = Problem3()
+        self.word_list = ["hello", "word", "hey", "wonder", "wordle", "open", "opportunity", "opportunities",
+                            "yes", "maybe", "close", "closer", "closest", "wow", "sever", "serve", "several",
+                            "severe", "severance"]
+        self.not_included_words = ["not", "in", "the", "data", "structure", "closes"]
+
+
+    def test_insert(self):
+
+        # general smoke test
+        for word in self.word_list:
+            self.structure.insert(word)
+
+
+    def test_search(self):
+        
+        # insert words into structure
+        for word in self.word_list:
+            self.structure.insert(word)
+
+        # check each word was inserted successfully returns True
+        for word in self.word_list:
+            self.assertTrue(self.structure.search(word))
+
+        # check words that were not inserted return False
+        for word in self.not_included_words:
+            self.assertFalse(self.structure.search(word))
+
+
+    def test_delete(self):
+        
+        # insert words into structure
+        for word in self.word_list:
+            self.structure.insert(word)
+
+        # delete all words
+        for word in self.word_list:
+            self.structure.delete(word)
+
+        # we should be left with a list of Nones
+        self.assertTrue(all(val is None for val in self.structure.words))
+
+        # insert two similar words, one a prefix of the other
+        self.structure.insert("present")
+        self.structure.insert("presentation")
+
+        # deleting one should not delete the other
+        self.assertTrue(self.structure.search("present"))
+        self.assertTrue(self.structure.search("presentation"))
+        
+        self.structure.delete("present")
+        
+        self.assertFalse(self.structure.search("present"))
+        self.assertTrue(self.structure.search("presentation"))
+
+    
+    def test_time_complexity(self):
+        
+        # creating a set of words 100, 200, 300 ... 900 characters long
+        increasing_word_list = ['a' * 100*n for n in range(1, 10)]
+        
+        # inserting each word and printing the time taken per word
+        for i in range(len(increasing_word_list)):
+            start_time = timeit.default_timer()
+
+            self.structure.insert(increasing_word_list[i])
+
+            end_time = timeit.default_timer()
+            time_dif = end_time - start_time
+
+            print(f"Inserting word {(i + 1) * 100} characters long: {time_dif * 10**3} ms.")
+
+        print()
+
+        # searching for each word and printing the time taken per word
+        for i in range(len(increasing_word_list)):
+            start_time = timeit.default_timer()
+
+            self.structure.search(increasing_word_list[i])
+
+            end_time = timeit.default_timer()
+            time_dif = end_time - start_time
+
+            print(f"Searching for word {(i + 1) * 100} characters long: {time_dif * 10**3} ms.")
+
+        print()
+
+        # deleting each word and printing the time taken per word
+        for i in range(len(increasing_word_list)-1, -1, -1):
+            start_time = timeit.default_timer()
+
+            self.structure.delete(increasing_word_list[i])
+
+            end_time = timeit.default_timer()
+            time_dif = end_time - start_time
+
+            print(f"Deleting word {(i + 1) * 100} characters long: {time_dif * 10**3} ms.")
+
+
 if __name__ == "__main__":
-    word_list = ["hello", "word", "hey", "wonder", "wordle", "open", "opportunity", "opportunities"]
-
-    increasing_word_list = ['a' * 1000*n for n in range(1, 11)]
-
-    problem = Problem3()
-
-    for word in word_list:
-        problem.insert(word)
-
-    print(problem.search("hello"))
-    print(problem.search("words"))
-    print(problem.search("ope"))
-
-    print(problem.search("opportunity"))
-    problem.delete('opportunity')
-    print(problem.search("opportunity"))
-
-    print(problem.search("opportunities"))
-
-
-    problem2 = Problem3()
-
-    problem2.insert("he")
-    problem2.insert("hello")
-    problem2.delete("hello")
-    print(problem2.words)
+    unittest.main()
